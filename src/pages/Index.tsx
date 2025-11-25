@@ -1,15 +1,24 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import Icon from '@/components/ui/icon';
 
 const Index = () => {
+  const { user, logout } = useAuth();
   const [kerning, setKerning] = useState([0]);
   const [tracking, setTracking] = useState([0]);
   const [lineHeight, setLineHeight] = useState([1.5]);
   const [colorHue, setColorHue] = useState([262]);
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -27,7 +36,45 @@ const Index = () => {
             <a href="#composition" className="text-sm hover:text-primary transition-colors">Композиция</a>
             <a href="#color" className="text-sm hover:text-primary transition-colors">Колористика</a>
             <a href="#styles" className="text-sm hover:text-primary transition-colors">Стили</a>
-            <Button size="sm" className="rounded-full">Купить подписку</Button>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="rounded-full gap-2">
+                    <Avatar className="h-7 w-7">
+                      <AvatarFallback className="text-xs bg-primary text-primary-foreground">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {user.name}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer">
+                      <Icon name="User" size={16} className="mr-2" />
+                      Личный кабинет
+                    </Link>
+                  </DropdownMenuItem>
+                  {(user.role === 'admin' || user.role === 'editor') && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer">
+                        <Icon name="Settings" size={16} className="mr-2" />
+                        Админ-панель
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={logout} className="cursor-pointer">
+                    <Icon name="LogOut" size={16} className="mr-2" />
+                    Выйти
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/login">
+                <Button size="sm" className="rounded-full">Войти</Button>
+              </Link>
+            )}
           </nav>
         </div>
       </header>

@@ -1,0 +1,9 @@
+{
+  "tests": [
+    {
+      "name": "Get all articles - empty state",
+      "method": "GET",
+      "expectedStatus": 200
+    }
+  ]
+}
